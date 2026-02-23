@@ -1,8 +1,8 @@
 import torch
 import os
 import re
-from gnn_model import MedicalGNN
-from data_preprocessing import load_and_process_data, clean_text
+from src.gnn_model import MedicalGNN
+from src.data_preprocessing import load_and_process_data, clean_text
 import torch.nn.functional as F
 
 class MedicalChatbot:

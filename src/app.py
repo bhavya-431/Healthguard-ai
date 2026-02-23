@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from inference import MedicalChatbot
+from src.inference import MedicalChatbot
 import os
 
 app = FastAPI()
