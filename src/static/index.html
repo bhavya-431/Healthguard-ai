@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Medical Assistant</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --accent: #22d3ee;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at top left, #1e1b4b, transparent 40%),
+                radial-gradient(circle at bottom right, #3f2e3e, transparent 40%);
+            overflow-x: hidden;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .bot-container {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        /* 3D CSS Bot */
+        .bot {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .head {
+            width: 160px;
+            height: 140px;
+            background: linear-gradient(135deg, #e0e7ff, #a5b4fc);
+            border-radius: 60px 60px 50px 50px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4), inset 0 -5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+            transition: transform 0.3s ease;
+        }
+
+        .face {
+            width: 120px;
+            height: 80px;
+            background: #1e293b;
+            border-radius: 40px;
+            position: absolute;
+            top: 30px;
+            left: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .eye {
+            width: 28px;
+            height: 28px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent);
+            animation: blink 4s infinite;
+        }
+
+        .mouth {
+            width: 20px;
+            height: 4px;
+            background: var(--accent);
+            border-radius: 2px;
+            position: absolute;
+            bottom: 15px;
+            left: 50px;
+            transition: all 0.2s;
+        }
+
+        .antenna {
+            width: 8px;
+            height: 40px;
+            background: #a5b4fc;
+            position: absolute;
+            top: -30px;
+            left: 76px;
+            border-radius: 4px;
+            z-index: 1;
+        }
+
+        .antenna::after {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: var(--secondary);
+            border-radius: 50%;
+            position: absolute;
+            top: -12px;
+            left: -4px;
+            box-shadow: 0 0 15px var(--secondary);
+            animation: pulse 2s infinite;
+        }
+
+        /* Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotateX(5deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotateX(-5deg);
+            }
+        }
+
+        @keyframes blink {
+
+            0%,
+            96%,
+            100% {
+                transform: scaleY(1);
+            }
+
+            98% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes talking {
+
+            0%,
+            100% {
+                height: 4px;
+            }
+
+            50% {
+                height: 10px;
+                width: 30px;
+                left: 45px;
+            }
+        }
+
+        .container {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            padding-right: 3.5rem;
+            border-radius: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            font-size: 1rem;
+            resize: none;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            margin-bottom: 0;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #94a3b8 !important;
+            box-shadow: none !important;
+        }
+
+        .secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text) !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+        }
+
+        .result-card {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            display: none;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .result-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .precautions-list {
+            margin-top: 1rem;
+            padding-left: 1.2rem;
+            color: #e2e8f0;
+        }
+
+        .precautions-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        .alternate-results {
+            margin-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 1rem;
+        }
+
+        .alternate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+            color: #94a3b8;
+        }
+
+        .alternate-item:last-child {
+            border-bottom: none;
+        }
+
+        .alternate-name {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .alternate-score {
+            font-family: monospace;
+            color: var(--accent);
+        }
+
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            top: -20px;
+            right: -130px;
+            background: white;
+            color: #1e293b;
+            padding: 15px 20px;
+            border-radius: 20px 20px 20px 0;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 10;
+            max-width: 200px;
+        }
+
+        .speech-bubble.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Textarea Wrapper */
+        .textarea-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Mic Button */
+        .mic-btn {
+            position: absolute !important;
+            ;
+            bottom: 14px !important;
+            ;
+            right: 14px !important;
+            ;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: var(--accent);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0;
+            border-radius: 50%;
+            transition: all 0.2s;
+            width: 34px !important;
+            height: 34px !important;
+            ;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+
+
+        .mic-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: scale(1.1);
+            box-shadow: none;
+        }
+
+        .mic-btn.listening {
+            background: var(--secondary);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="main-wrapper">
+        <div class="bot-container">
+            <div class="bot">
+                <div class="speech-bubble" id="botBubble">Hi!</div>
+                <div class="antenna"></div>
+                <div class="head">
+                    <div class="face">
+                        <div class="eye"></div>
+                        <div class="eye"></div>
+                        <div class="mouth" id="botMouth"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h1>HealthGuard AI</h1>
+            <p class="subtitle">Describe your symptoms to get an instant AI prediction.</p>
+
+            <div class="textarea-wrapper">
+                <textarea id="symptoms"
+                    placeholder="E.g., I have been experiencing a severe headache and high fever..."></textarea>
+                <button class="mic-btn" onclick="startListening()" title="Voice input">🎤</button>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                <button onclick="predict()" id="predictBtn" style="flex: 2;">
+                    <span id="btnText">Analyze Symptoms</span>
+                    <div class="spinner" id="spinner"></div>
+                </button>
+                <button onclick="resetForm()" id="resetBtn" class="secondary-btn" style="flex: 1;">
+                    Reset
+                </button>
+            </div>
+
+            <div class="result-card" id="resultCard">
+                <div style="font-size: 0.9rem; text-transform: uppercase; color: #94a3b8;">Predicted Condition</div>
+                <div class="result-value" id="diseaseName">--</div>
+                <div style="font-size: 0.9rem; color: #cbd5e1; margin-bottom: 1rem;" id="confidenceVal">Confidence: --%
+                </div>
+
+                <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+                    <strong style="color: var(--secondary);">Recommended Precautions:</strong>
+                    <ul class="precautions-list" id="precautionsList">
+                        <!-- Items here -->
+                    </ul>
+                </div>
+
+                <div class="alternate-results" id="alternateResultsSection">
+                    <div style="font-size: 0.8rem; text-transform: uppercase; color: #64748b; margin-bottom: 0.5rem;">
+                        Other Potential Conditions</div>
+                    <div id="alternateResultsList">
+                        <!-- Other predictions here -->
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: #94a3b8;">
+                <p>⚠️ <strong>Disclaimer:</strong> This is an AI prediction and can make mistakes. It is not a
+                    substitute for professional medical advice.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Speech Synthesis & Bubble Helper
+        function speak(text, callback) {
+            const bubble = document.getElementById('botBubble');
+            if (text.length > 50) {
+                bubble.innerText = text.substring(0, 47) + "...";
+            } else {
+                bubble.innerText = text;
+            }
+            bubble.classList.add('visible');
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(v => v.name.includes("Female") || v.name.includes("Google US English")) || voices[0];
+                if (preferredVoice) utterance.voice = preferredVoice;
+
+                const mouth = document.getElementById('botMouth');
+                utterance.onstart = () => { mouth.style.animation = "talking 0.2s infinite alternate"; };
+                utterance.onend = () => {
+                    mouth.style.animation = "none";
+                    setTimeout(() => bubble.classList.remove('visible'), 5000);
+                    if (callback) callback();
+                };
+                utterance.onerror = (e) => {
+                    mouth.style.animation = "none";
+                    if (callback) callback();
+                };
+                window.speechSynthesis.speak(utterance);
+            } else {
+                setTimeout(() => bubble.classList.remove('visible'), 5000);
+                if (callback) callback();
+            }
+        }
+
+        // Voice Input
+        function startListening() {
+            if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); }
+
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Your browser does not support voice input. Please try Chrome.");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            const btn = document.querySelector('.mic-btn');
+
+            recognition.onstart = () => {
+                btn.classList.add('listening');
+                const bubble = document.getElementById('botBubble');
+                bubble.innerText = "I'm listening...";
+                bubble.classList.add('visible');
+                document.getElementById('botMouth').style.animation = "none";
+            };
+
+            recognition.onend = () => {
+                btn.classList.remove('listening');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const textarea = document.getElementById('symptoms');
+                // Append if there's already text, or just replace? 
+                // User said "write it in text area", usually implies replacing or starting fresh.
+                // I'll append with a space if not empty.
+                if (textarea.value.trim()) {
+                    textarea.value += " " + transcript;
+                } else {
+                    textarea.value = transcript;
+                }
+                document.getElementById('botBubble').classList.remove('visible');
+                speak("I've added that to your symptoms. Press analyze when you're ready.");
+            };
+
+            recognition.onerror = (event) => {
+                console.error(event.error);
+                btn.classList.remove('listening');
+                speak("I didn't catch that. Please click the mic and try again.");
+            };
+
+            recognition.start();
+        }
+
+        async function predict() {
+            const text = document.getElementById('symptoms').value;
+            if (!text.trim()) return;
+
+            const btn = document.getElementById('predictBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const resultCard = document.getElementById('resultCard');
+
+            // 1. Warm "Thinking" Message
+            speak("I am analyzing your symptoms. Please hold on.");
+
+            btnText.style.display = 'none';
+            spinner.style.display = 'block';
+            btn.disabled = true;
+            resultCard.style.display = 'none';
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text }),
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    speak("I'm sorry, I encountered an error. Please try again.");
+                } else if (!data.predictions || data.predictions.length === 0) {
+                    speak(data.message || "I couldn't identify any clear matching conditions.");
+                } else {
+                    const top = data.predictions[0];
+                    document.getElementById('diseaseName').innerText = top.disease;
+                    const topConf = (top.confidence * 100).toFixed(1);
+                    document.getElementById('confidenceVal').innerText = `Primary Confidence: ${topConf}%`;
+
+                    const list = document.getElementById('precautionsList');
+                    list.innerHTML = '';
+                    top.precautions.forEach(p => {
+                        const li = document.createElement('li');
+                        li.innerText = p;
+                        list.appendChild(li);
+                    });
+
+                    // Handle Alternates
+                    const altSection = document.getElementById('alternateResultsSection');
+                    const altList = document.getElementById('alternateResultsList');
+                    altList.innerHTML = '';
+
+                    if (data.predictions.length > 1) {
+                        altSection.style.display = 'block';
+                        for (let i = 1; i < data.predictions.length; i++) {
+                            const p = data.predictions[i];
+                            const item = document.createElement('div');
+                            item.className = 'alternate-item';
+                            item.innerHTML = `
+                                <span class="alternate-name">${p.disease}</span>
+                                <span class="alternate-score">${(p.confidence * 100).toFixed(1)}%</span>
+                            `;
+                            altList.appendChild(item);
+                        }
+                    } else {
+                        altSection.style.display = 'none';
+                    }
+
+                    resultCard.style.display = 'block';
+
+                    // 2. Speak Result
+                    const speechText = `Based on your symptoms, the primary prediction is ${top.disease}. Please note that this is an AI prediction and can make mistakes. It is not a substitute for professional medical advice.`;
+                    speak(speechText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Something went wrong. Please try again.');
+                speak("Something went wrong. Please check your connection.");
+            } finally {
+                btnText.style.display = 'block';
+                spinner.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('symptoms').value = '';
+            document.getElementById('resultCard').style.display = 'none';
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            document.getElementById('botBubble').classList.remove('visible');
+            speak("Form cleared. How else can I help?");
+        }
+    </script>
+
+    <!-- Add an overlay to start interaction -->
+    <div id="startOverlay"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+        <h1 style="margin-bottom: 2rem;">HealthGuard AI</h1>
+        <button onclick="startSession()" style="width: auto; padding: 1rem 3rem; font-size: 1.2rem;">Start
+            Consultation</button>
+    </div>
+
+    <script>
+        function startSession() {
+            const overlay = document.getElementById('startOverlay');
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Trigger Greeting
+                speak("Hello. How may I help you with your health concerns today?");
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>
